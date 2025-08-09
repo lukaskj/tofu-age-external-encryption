@@ -1,0 +1,78 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "includes": ["**/src/**/*.ts", "**/test/**/*.ts", "!**/node_modules/", "!**/dist/", "!**/lib/", "!**/*.min.js"],
+    "ignoreUnknown": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "lineWidth": 120,
+    "indentWidth": 2
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedFunctionParameters": "warn",
+        "noUnusedVariables": "warn"
+      },
+      "style": {
+        "noInferrableTypes": "off",
+        "noNonNullAssertion": "off",
+        "noParameterAssign": "warn",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "warn",
+        "useSingleVarDeclarator": "warn",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noUselessElse": "warn"
+      },
+      "complexity": {
+        "noStaticOnlyClass": "off",
+        "useArrowFunction": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "lineWidth": 120
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/test/**", "**/*.spec.ts", "**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "warn"
+          },
+          "complexity": {
+            "useLiteralKeys": "off"
+          }
+        }
+      }
+    }
+  ]
+}

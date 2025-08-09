@@ -1,0 +1,29 @@
+{
+  "name": "@lukaskj/tofu-age-external-encryption",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "init:husky": "bunx husky init",
+    "dev": "bun run src/index.ts",
+    "lint": "tsc -p . --noEmit && biome lint --write",
+    "format": "biome format --write",
+    "test:cov": "bun run test --coverage",
+    "test": "bun test --env-file .env.test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.4",
+    "@faker-js/faker": "^9.9.0",
+    "@types/bun": "latest",
+    "@types/node": "^24.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "typescript": "^5.9.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "bun format",
+      "bun lint"
+    ]
+  }
+}

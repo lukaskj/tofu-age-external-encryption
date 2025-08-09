@@ -1,0 +1,8 @@
+telemetry = false
+
+[test]
+root = "./test"
+preload = ["./test/test-setup.ts"]
+coverageSkipTestFiles = true
+coverageIgnoreSourcemaps = true
+coverageThreshold = { line = 0.8, function = 0.8, statement = 0.8 }
