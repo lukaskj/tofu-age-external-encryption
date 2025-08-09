@@ -19,12 +19,13 @@ export class Logger {
   private static loggers: Logger[] = [];
   private levels: LogLevel[] = ["error", "warn", "info", "debug"];
 
-  private colors: Record<LogLevel | "reset", string> = {
+  private colors: Record<LogLevel | "reset" | "timestamp", string> = {
     error: "\x1b[31m", // red
     warn: "\x1b[33m", // yellow
     info: "\x1b[36m", // cyan
-    debug: "\x1b[35m", // magenta
+    debug: "\x1b[1;94m", // blue
     reset: "\x1b[0m", // reset
+    timestamp: "\x1b[1;97m", // white
   };
 
   private level: LogLevel;
@@ -111,8 +112,15 @@ export class Logger {
     const color = this.options.color ? this.colors[level] || "" : "";
     const reset = this.colors.reset;
 
-    const cleanLine = `[${timestamp}] [${level.toUpperCase()}] ${String(message)} ${args.map(String).join(" ")}`;
-    const coloredLine = `${color}${cleanLine}${reset}`;
+    const info = `{timestamp}[${timestamp}] {level}[${level.toUpperCase()}]{reset}`;
+
+    const builtMessage = `${info} ${String(message)} ${args.map(String).join(" ")}`;
+    const cleanLine = builtMessage.replace("{timestamp}", "").replace("{level}", "").replace("{reset}", "");
+
+    const coloredLine = builtMessage
+      .replace("{timestamp}", this.colors.timestamp)
+      .replace("{level}", color)
+      .replace("{reset}", reset);
 
     // Write line to all transports
     for (const transport of this.transports) {
@@ -126,6 +134,11 @@ export class Logger {
 
   public error(message: unknown, ...args: unknown[]): void {
     this.logMessage("error", message, ...args);
+  }
+
+  public fatal(message: unknown, ...args: unknown[]): void {
+    this.logMessage("error", message, ...args);
+    process.exit(1);
   }
 
   public warn(message: unknown, ...args: unknown[]): void {
