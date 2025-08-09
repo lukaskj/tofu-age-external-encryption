@@ -1,4 +1,5 @@
 import type { Writable } from "node:stream";
+import { inspect } from "node:util";
 
 type LogLevel = "error" | "warn" | "info" | "debug";
 
@@ -13,6 +14,20 @@ const defaultOptions: LoggerOptions = {
   level: "info",
   color: true,
   transports: [process.stderr],
+};
+
+type TBuildMessage = {
+  timestampColor: string;
+  resetColor: string;
+  levelColor: string;
+  inspectColors?: boolean;
+};
+
+const defaultBuildMessageOptions: TBuildMessage = {
+  timestampColor: "",
+  resetColor: "",
+  levelColor: "",
+  inspectColors: false,
 };
 
 export class Logger {
@@ -109,18 +124,27 @@ export class Logger {
     if (!this.shouldLog(level)) return;
 
     const timestamp = this.formatTimestamp();
-    const color = this.options.color ? this.colors[level] || "" : "";
-    const reset = this.colors.reset;
+    const levelColor = this.colors[level] || "";
+    const resetColor = this.colors.reset;
+    const timestampColor = this.colors.timestamp;
 
-    const info = `{timestamp}[${timestamp}] {level}[${level.toUpperCase()}]{reset}`;
+    const buildMessage = ({
+      timestampColor,
+      resetColor,
+      levelColor,
+      inspectColors,
+    }: TBuildMessage = defaultBuildMessageOptions) => {
+      const info = `${timestampColor}[${timestamp}] ${levelColor}[${level.toUpperCase()}]${resetColor}`;
+      return `${info} ${String(message)} ${args
+        .map((arg) => {
+          if (typeof arg === "string") return arg;
+          return inspect(arg, { colors: inspectColors });
+        })
+        .join(" ")}`;
+    };
 
-    const builtMessage = `${info} ${String(message)} ${args.map(String).join(" ")}`;
-    const cleanLine = builtMessage.replace("{timestamp}", "").replace("{level}", "").replace("{reset}", "");
-
-    const coloredLine = builtMessage
-      .replace("{timestamp}", this.colors.timestamp)
-      .replace("{level}", color)
-      .replace("{reset}", reset);
+    const cleanLine = buildMessage();
+    const coloredLine = buildMessage({ levelColor, resetColor, timestampColor });
 
     // Write line to all transports
     for (const transport of this.transports) {
