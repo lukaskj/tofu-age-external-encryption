@@ -7,7 +7,15 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**/src/**/*.ts", "**/test/**/*.ts", "!**/node_modules/", "!**/dist/", "!**/lib/", "!**/*.min.js"],
+    "includes": [
+      "**/src/**/*.ts",
+      "**/test/**/*.ts",
+      "**/scripts/**",
+      "!**/node_modules/",
+      "!**/dist/",
+      "!**/lib/",
+      "!**/*.min.js"
+    ],
     "ignoreUnknown": true
   },
   "formatter": {

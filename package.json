@@ -5,8 +5,11 @@
   "scripts": {
     "prepare": "husky",
     "init:husky": "bunx husky init",
+    "build": "bun run scripts/build.ts",
+    "declaration": "bunx tsc -p tsconfig.build.json --outDir dist --declaration --emitDeclarationOnly",
+    "build:all": "bun run declaration && bun run scripts/build.ts",
     "dev": "bun run src/index.ts",
-    "lint": "tsc -p . --noEmit && biome lint --write",
+    "lint": "bunx tsc -p . --noEmit && biome lint --write",
     "format": "biome format --write",
     "test:cov": "bun run test --coverage",
     "test": "bun test --env-file .env.test"
@@ -29,5 +32,41 @@
   "dependencies": {
     "age-encryption": "^0.2.4",
     "neverthrow": "^8.2.0"
-  }
+  },
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "default": "./dist/index.mjs",
+        "types": "./dist/index.d.ts"
+      },
+      "require": {
+        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.ts"
+      }
+    }
+  },
+  "bin": {
+    "tofu-age-encryption": "dist/index.mjs",
+    "taee": "dist/index.mjs"
+  },
+  "engines": {
+    "node": ">=23",
+    "bun": ">= 1.2.20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lukaskj/tofu-age-external-encryption.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lukaskj/tofu-age-external-encryption/issues"
+  },
+  "homepage": "https://github.com/lukaskj/tofu-age-external-encryption#readme",
+  
+  "files": [
+    "dist/**/*",
+    "!**/test/**",
+    "!node_modules"
+  ]
 }
