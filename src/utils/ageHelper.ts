@@ -4,8 +4,13 @@ import { readFile } from "node:fs/promises";
 import { removeHashComments } from "./removeHashComments.ts";
 import type { AgePrivateKey } from "../types.ts";
 
-const AGE_PK_ENVS = ["AGE_KEY_FILE", "SOPS_AGE_KEY_FILE", "AGE_KEY", "SOPS_AGE_KEY"] as const;
-const AGE_RECIPIENT_ENVS = ["AGE_RECIPIENTS", "SOPS_AGE_RECIPIENTS", "AGE_RECIPIENTS", "SOPS_AGE_RECIPIENTS"] as const;
+export const AGE_PK_ENVS = ["AGE_KEY_FILE", "SOPS_AGE_KEY_FILE", "AGE_KEY", "SOPS_AGE_KEY"] as const;
+export const AGE_RECIPIENT_ENVS = [
+  "AGE_RECIPIENTS",
+  "SOPS_AGE_RECIPIENTS",
+  "AGE_RECIPIENTS",
+  "SOPS_AGE_RECIPIENTS",
+] as const;
 
 export function getPrivateKeys(): ResultAsync<AgePrivateKey[], unknown> {
   for (const envKey of ["AGE_KEY_FILE", "SOPS_AGE_KEY_FILE"] as const) {
@@ -25,6 +30,7 @@ export function getPrivateKeys(): ResultAsync<AgePrivateKey[], unknown> {
           .map((l) => l.trim())
           .filter((l) => l.length),
       )
+      .map((lines) => lines.flatMap((l) => l.split(",")))
       .andThen((privateKeys) => {
         const recipientResults = privateKeys.map((key) =>
           identityToRecipientRA(key)
@@ -56,6 +62,7 @@ export function getPrivateKeys(): ResultAsync<AgePrivateKey[], unknown> {
       .split("\n")
       .map((l) => l.trim())
       .filter((l) => l.length)
+      .flatMap((lines) => lines.split(","))
       .map((key) =>
         identityToRecipientRA(key)
           .map((recipient) => ({ recipient, key }))
@@ -96,12 +103,12 @@ export function getRecipients(): ResultAsync<string[], unknown> {
           .map((bf) => bf.toString("utf-8"))
           .map((contents) => removeHashComments(contents))
           .map((contents) => contents.split("\n").map((l) => l.trim()))
-          .map((lines) => lines.flatMap((l) => l.split(",")))
-          .andThen((contents) =>
-            contents.length
+          .map((lines) => lines.flatMap((l) => l.split(",").filter((l) => l.length)))
+          .andThen((contents) => {
+            return contents.length
               ? ok(contents)
-              : err(`Recipients not present in '${recipientsFilePath}' (env var: '${envKey}')`),
-          );
+              : err(`Recipients not present in '${recipientsFilePath}' (env var: '${envKey}')`);
+          });
       }
 
       for (const envKey of ["AGE_RECIPIENTS", "SOPS_AGE_RECIPIENTS"] as const) {
@@ -113,9 +120,14 @@ export function getRecipients(): ResultAsync<string[], unknown> {
         const contents = removeHashComments(recipientListFromEnv)
           .split("\n")
           .map((l) => l.trim())
+          .filter((l) => l.length)
           .flatMap((r) => r.split(","));
 
-        return okAsync(contents);
+        if (contents.length) {
+          return okAsync(contents);
+        }
+
+        return errAsync(`Recipients not present in 'envKey' (env var: '${envKey}')`);
       }
 
       return errAsync(

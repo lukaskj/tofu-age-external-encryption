@@ -10,17 +10,17 @@ interface LoggerOptions {
   transports?: Writable[];
 }
 
-const defaultOptions: LoggerOptions = {
-  level: "info",
-  color: true,
-  transports: [process.stderr],
-};
-
 type TBuildMessage = {
   timestampColor: string;
   resetColor: string;
   levelColor: string;
   inspectColors?: boolean;
+};
+
+const defaultOptions: LoggerOptions = {
+  level: "info",
+  color: true,
+  transports: [process.stderr],
 };
 
 const defaultBuildMessageOptions: TBuildMessage = {

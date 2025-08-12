@@ -76,6 +76,26 @@ describe("getPrivateKeys", () => {
         expect(result.isErr()).toBe(true);
         expect(result._unsafeUnwrapErr()).toMatch(/Private key not present/);
       });
+
+      it(`reads from '${privateKeyEnvKey}' comma and new line separated keys env and returns keys`, async () => {
+        process.env[privateKeyEnvKey] = "/empty/path";
+        spyOn(fs, "readFile").mockResolvedValue(Buffer.from("key1,key2\nkey3\nkey4\n"));
+
+        const spy = spyOn(age, "identityToRecipient");
+        const expected = [];
+        for (let i = 0; i < 4; i++) {
+          spy.mockResolvedValueOnce(`recipient${i + 1}`);
+          expected.push({
+            key: `key${i + 1}`,
+            recipient: `recipient${i + 1}`,
+          });
+        }
+
+        const result = await getPrivateKeys();
+
+        expect(result.isOk()).toBe(true);
+        expect(result._unsafeUnwrap()).toEqual(expected);
+      });
     });
   });
 
@@ -98,6 +118,25 @@ describe("getPrivateKeys", () => {
         ];
 
         spyOn(age, "identityToRecipient").mockResolvedValue("recipient");
+
+        const result = await getPrivateKeys();
+
+        expect(result.isOk()).toBe(true);
+        expect(result._unsafeUnwrap()).toEqual(expected);
+      });
+
+      it(`reads from '${privateKeyEnvKey}' comma and new line separated keys env and returns keys`, async () => {
+        process.env[privateKeyEnvKey] = "key1,key2\nkey3\nkey4\n";
+
+        const spy = spyOn(age, "identityToRecipient");
+        const expected = [];
+        for (let i = 0; i < 4; i++) {
+          spy.mockResolvedValueOnce(`recipient${i + 1}`);
+          expected.push({
+            key: `key${i + 1}`,
+            recipient: `recipient${i + 1}`,
+          });
+        }
 
         const result = await getPrivateKeys();
 
@@ -208,9 +247,11 @@ describe("getRecipients", () => {
 
         const result = await getRecipients();
 
-        expect(result.isOk()).toBe(true);
-        // Empty file results in an array with one empty string after processing
-        expect(result._unsafeUnwrap()).toEqual([""]);
+        expect(result.isErr()).toBe(true);
+
+        expect(result._unsafeUnwrapErr()).toMatch(
+          new RegExp(`Recipients not present in '${process.env[envKey]}'.+${envKey}`),
+        );
       });
 
       it(`returns error if ${envKey} file read fails`, async () => {
@@ -382,7 +423,7 @@ describe("getRecipients", () => {
 
       expect(result.isOk()).toBe(true);
       // Empty lines become empty strings in the result
-      expect(result._unsafeUnwrap()).toEqual(["age1recipient1", "", "age1recipient2", ""]);
+      expect(result._unsafeUnwrap()).toEqual(["age1recipient1", "age1recipient2"]);
     });
 
     it("handles empty lines and extra commas in recipients", async () => {
