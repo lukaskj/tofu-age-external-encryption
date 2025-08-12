@@ -2,6 +2,9 @@ import Bun from "bun";
 import { renameSync } from "node:fs";
 import { join } from "node:path";
 
+console.log("Starting build...");
+const start = Date.now();
+
 const buildConfig: Bun.BuildConfig = {
   entrypoints: ["src/index.ts"],
   outdir: "dist",
@@ -40,3 +43,5 @@ function outputLogs(result: Bun.BuildOutput) {
     }
   }
 }
+
+console.log(`Build finished in ${Date.now() - start}ms`);
