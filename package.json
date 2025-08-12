@@ -25,5 +25,9 @@
       "bun format",
       "bun lint"
     ]
+  },
+  "dependencies": {
+    "age-encryption": "^0.2.4",
+    "neverthrow": "^8.2.0"
   }
 }
