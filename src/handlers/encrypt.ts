@@ -5,6 +5,7 @@ import type { EncryptionInput, EncryptionOutput } from "../types.ts";
 import { logger } from "../utils/defaultLogger.ts";
 import { readStdinAsync } from "../utils/readStdinAsync.ts";
 import { safeJsonParse } from "../utils/safeJsonParse.ts";
+import { getRecipients } from "../utils/ageHelper.ts";
 
 export async function encrypt() {
   process.stdout.write(`${HEADERS.Encryption}\n`);
@@ -19,7 +20,20 @@ export async function encrypt() {
 
   const recipients = Buffer.from(input.value.key ?? "", "base64")
     .toString("utf-8")
-    .split(",");
+    .split(",")
+    .filter((key) => key.length);
+
+  if (!recipients.length) {
+    const recipientsFromEnvs = await getRecipients();
+    if (recipientsFromEnvs.isOk()) {
+      recipients.push(...recipientsFromEnvs.value);
+    }
+  }
+
+  if (!recipients.length) {
+    logger.fatal("Recipients or private keys not found.");
+    return;
+  }
 
   const encrypt = new age.Encrypter();
   for (const recipient of recipients) {

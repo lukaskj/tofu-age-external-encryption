@@ -5,6 +5,7 @@ import type { EncryptionInput, EncryptionOutput } from "../types.ts";
 import { logger } from "../utils/defaultLogger.ts";
 import { readStdinAsync } from "../utils/readStdinAsync.ts";
 import { safeJsonParse } from "../utils/safeJsonParse.ts";
+import { getPrivateKeys } from "../utils/ageHelper.ts";
 
 export async function decrypt() {
   process.stdout.write(`${HEADERS.Encryption}\n`);
@@ -12,15 +13,25 @@ export async function decrypt() {
   logger.debug("Decrypt input");
 
   const input = safeJsonParse<EncryptionInput>(rawInput);
-  if (input.isErr() || !input.value.key) {
+  if (input.isErr()) {
     logger.fatal("Failed to parse decrypt input.");
     return;
   }
 
-  const privateKeys = Buffer.from(input.value.key, "base64").toString("utf-8").split(",");
+  const privateKeys = Buffer.from(input.value.key ?? "", "base64")
+    .toString("utf-8")
+    .split(",")
+    .filter((k) => k.length);
 
-  if (!privateKeys || !privateKeys.length) {
-    logger.fatal("Private keys not sent.");
+  if (!privateKeys.length) {
+    const privateKeysFromEnv = await getPrivateKeys();
+    if (privateKeysFromEnv.isOk()) {
+      privateKeys.push(...privateKeysFromEnv.value.map((k) => k.key));
+    }
+  }
+
+  if (!privateKeys.length) {
+    logger.fatal("Private keys not found.");
     return;
   }
 
