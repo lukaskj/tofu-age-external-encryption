@@ -2,7 +2,6 @@ import * as age from "age-encryption";
 import { fromPromise } from "neverthrow";
 import { HEADERS } from "../constants.ts";
 import type { EncryptionInput, EncryptionOutput } from "../types.ts";
-import { getRecipients } from "../utils/ageHelper.ts";
 import { logger } from "../utils/defaultLogger.ts";
 import { readStdinAsync } from "../utils/readStdinAsync.ts";
 import { safeJsonParse } from "../utils/safeJsonParse.ts";
@@ -18,15 +17,12 @@ export async function encrypt() {
     return;
   }
 
-  const recipients = await getRecipients();
-  if (recipients.isErr()) {
-    logger.error("Failed to get age recipients.", recipients.error);
-
-    return;
-  }
+  const recipients = Buffer.from(input.value.key ?? "", "base64")
+    .toString("utf-8")
+    .split(",");
 
   const encrypt = new age.Encrypter();
-  for (const recipient of recipients.value) {
+  for (const recipient of recipients) {
     encrypt.addRecipient(recipient);
   }
 
