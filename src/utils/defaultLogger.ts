@@ -4,7 +4,7 @@ import { Logger } from "./logger.ts";
 
 const defaultTransforms: Stream.Writable[] = [process.stderr];
 
-const isDebug = process.env.DEBUG === "true" || process.env.DEBUG === "1";
+const isDebug = process.env.DEBUG === "true" || process.env.DEBUG === "1" || process.env.LOG_LEVEL === "debug";
 
 if (isDebug) {
   const file = createWriteStream("./taee-debug.log", { flags: "a" });
