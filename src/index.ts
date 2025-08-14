@@ -14,17 +14,17 @@ async function entrypoint() {
   switch (process.argv[2]) {
     case "--encrypt":
     case "encrypt":
-      encrypt();
+      await encrypt();
       break;
     case "--decrypt":
     case "decrypt":
-      decrypt();
+      await decrypt();
       break;
     case "--key-provider":
     case "key-provider":
     case "--key":
     case "key":
-      keyProvider();
+      await keyProvider();
       break;
     default:
       logger.fatal("Option not regcognized:", process.argv[2]);

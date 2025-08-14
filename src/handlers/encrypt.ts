@@ -52,7 +52,7 @@ export async function encrypt() {
   }
 
   const output: EncryptionOutput = {
-    payload: encryptResult.value.toBase64(),
+    payload: Buffer.from(encryptResult.value).toString("base64"),
   };
 
   logger.debug("Encrypt output:", output);
