@@ -1,5 +1,6 @@
 {
   "name": "@lukaskj/tofu-age-external-encryption",
+  "version": "1.0.0",
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
@@ -12,7 +13,12 @@
     "lint": "bunx tsc -p . --noEmit && biome lint --write",
     "format": "biome format --write",
     "test:cov": "bun run test --coverage",
-    "test": "bun test --env-file .env.test"
+    "test": "bun test --env-file .env.test",
+    "prepack": "rm -rf dist && bun run build"
+  },
+  "dependencies": {
+    "age-encryption": "^0.2.4",
+    "neverthrow": "^8.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
@@ -28,10 +34,6 @@
       "bun format",
       "bun lint"
     ]
-  },
-  "dependencies": {
-    "age-encryption": "^0.2.4",
-    "neverthrow": "^8.2.0"
   },
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -63,7 +65,6 @@
     "url": "https://github.com/lukaskj/tofu-age-external-encryption/issues"
   },
   "homepage": "https://github.com/lukaskj/tofu-age-external-encryption#readme",
-  
   "files": [
     "dist/**/*",
     "!**/test/**",
