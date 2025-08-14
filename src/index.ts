@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { decrypt } from "./handlers/decrypt.ts";
 import { encrypt } from "./handlers/encrypt.ts";
 import { keyProvider } from "./handlers/keyProvider.ts";
