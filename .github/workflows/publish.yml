@@ -10,7 +10,8 @@ permissions:
   id-token: write
 
 jobs:
-  publish:
+  Publish:
+    name: Publish to NPM
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,12 +33,13 @@ jobs:
       - name: Run Tests
         run: bun test
 
-      - name: Get version from tag
+      - name: Get Version From Tag
         id: get_version
         run: |
           echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - run: |
+      - name: Publishing Version ${{ steps.get_version.outputs.VERSION }}
+        run: |
           echo "Version to publish: ${{ steps.get_version.outputs.VERSION }}"
 
       - name: Publish to NPM
@@ -46,7 +48,7 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
           npm version --no-git-tag-version ${{ steps.get_version.outputs.VERSION }}
-          bun publish --access public --dry-run --ignore-scripts
+          bun publish --access public --ignore-scripts
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
