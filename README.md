@@ -52,3 +52,38 @@ Currently only working with local keys.
   ```bash
   export AGE_KEY="AGE-SECRET-KEY-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,AGE-SECRET-KEY-YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
   ```
+
+## Migrate from unencrypted to age encryption
+
+1. In your Terraform file, add the following configuration:
+
+   ```terraform
+   terraform {
+     // ...
+     encryption {
+       method "external" "age" {
+         encrypt_command = ["taee", "--encrypt"]
+         decrypt_command = ["taee", "--decrypt"]
+       }
+
+       method "unencrypted" "old_method" {}  // <- migrating from unencrypted state
+
+       state {
+         method   = method.external.age
+         enforced = false // <- Disable enforcement
+
+         fallback {
+           method = method.unencrypted.old_method // <- Add fallback to unencrypted method
+         }
+       }
+
+       plan {
+         method   = method.external.age
+         enforced = false
+       }
+     }
+   }
+   ```
+
+2. Run `tofu apply` to save the encrypted state
+3. Remove unencrypted method, remove fallback method and set back `enforced = true`
