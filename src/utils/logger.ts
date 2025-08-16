@@ -201,6 +201,8 @@ const signals = ["beforeExit", "exit", "SIGINT", "SIGTERM", "uncaughtException",
 
 signals.forEach((signal) => {
   process.once(signal, async (arg) => {
+    const doExit = process.listenerCount(signal) === 0;
+
     for (const logger of Logger["loggers"]) {
       await logger[Symbol.dispose]();
     }
@@ -208,12 +210,12 @@ signals.forEach((signal) => {
     switch (signal) {
       case "SIGINT":
       case "SIGTERM":
-        process.exit();
+        doExit && process.exit();
         break;
       case "uncaughtException":
       case "unhandledRejection":
         console.error(signal, arg);
-        process.exit(1);
+        doExit && process.exit(1);
         break;
       // case "beforeExit":
       // case "exit":
