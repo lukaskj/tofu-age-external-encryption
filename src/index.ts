@@ -1,8 +1,14 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { decrypt } from "./handlers/decrypt.ts";
 import { encrypt } from "./handlers/encrypt.ts";
 import { keyProvider } from "./handlers/keyProvider.ts";
 import { logger } from "./utils/defaultLogger.ts";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function entrypoint() {
   logger.debug("Args:", process.argv);
@@ -37,12 +43,12 @@ async function entrypoint() {
 }
 
 function version() {
-  const packageJson = require("../package.json");
+  const packageJson = JSON.parse(readFileSync(join(__dirname, "..", "package.json")).toString("utf-8"));
   return `Version ${packageJson.version}`;
 }
 
 function usage() {
-  const packageJson = require("../package.json");
+  const packageJson = JSON.parse(readFileSync(join(__dirname, "..", "package.json")).toString("utf-8"));
   console.log(`Version ${packageJson.version}`);
   const bin = packageJson.bin;
   let command = process.argv[1];
@@ -67,5 +73,6 @@ function usage() {
 
 entrypoint();
 
-export { entrypoint };
 export * from "./types";
+export { entrypoint };
+
