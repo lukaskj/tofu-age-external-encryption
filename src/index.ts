@@ -37,7 +37,8 @@ async function entrypoint() {
     case "-v":
       console.log(version());
       break;
-    default:
+      default:
+      console.log(version());
       console.log(usage());
   }
 }
@@ -49,7 +50,6 @@ function version() {
 
 function usage() {
   const packageJson = JSON.parse(readFileSync(join(__dirname, "..", "package.json")).toString("utf-8"));
-  console.log(`Version ${packageJson.version}`);
   const bin = packageJson.bin;
   let command = process.argv[1];
   if (typeof bin === "string") {
